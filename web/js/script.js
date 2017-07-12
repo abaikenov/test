@@ -1,7 +1,3 @@
-/**
- * Created by Ami07 on 12.07.2017.
- */
-
 $(function () {
     'use strict';
 
@@ -24,13 +20,13 @@ $(function () {
     }).prop('disabled', !$.support.fileInput)
         .parent().addClass($.support.fileInput ? undefined : 'disabled');
 
-
-    $('[data-target="#preview"]').click(function () {
-        var modal = $('#preview');
+    $('#preview').on('show.bs.modal', function (e) {
+        var modal = $(this);
         var form = $('#form-task');
         modal.find('span.field-user').text(form.find('input#user').val());
         modal.find('span.field-email').text(form.find('input#email').val());
         modal.find('span.field-title').text(form.find('input#title').val());
         modal.find('span.field-text').text(form.find('textarea#text').val());
+        modal.find('img.field-image').attr('src', form.find('input#image').val());
     });
 });

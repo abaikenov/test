@@ -4,9 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Тестовое задание</title>
-    <link rel="stylesheet" href="/css/bootstrap.css">
-    <link rel="stylesheet" href="/css/bootstrap-theme.css">
-    <link rel="stylesheet" href="/css/jquery.fileupload.css">
+    <link rel="stylesheet" href="/web/css/bootstrap.css">
+    <link rel="stylesheet" href="/web/css/bootstrap-theme.css">
+    <link rel="stylesheet" href="/web/css/jquery.fileupload.css">
 </head>
 <body>
 <nav class="navbar navbar-default">
@@ -26,13 +26,13 @@
         </div>
     </div>
 </nav>
-<div class="col-md-8 col-md-offset-2">
+<div class="col-md-10 col-md-offset-1">
     <?= $content ?>
 </div>
-<script type="text/javascript" src="/js/jquery-3.2.1.min.js"></script>
-<script type="text/javascript" src="/js/jquery.ui.widget.js"></script>
-<script type="text/javascript" src="/js/jquery.fileupload.js"></script>
-<script type="text/javascript" src="/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="/js/script.js"></script>
+<script type="text/javascript" src="/web/js/jquery-3.2.1.min.js"></script>
+<script type="text/javascript" src="/web/js/jquery.ui.widget.js"></script>
+<script type="text/javascript" src="/web/js/jquery.fileupload.js"></script>
+<script type="text/javascript" src="/web/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/web/js/script.js"></script>
 </body>
 </html>

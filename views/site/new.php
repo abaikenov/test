@@ -29,10 +29,10 @@
     <div class="form-group">
         <label for="text" class="col-sm-2 control-label">Картинка</label>
         <div class="col-sm-10">
-            <input type="hidden" name="image"/>
+            <input type="hidden" id="image" name="image"/>
             <span class="btn btn-success fileinput-button">
                 <i class="glyphicon glyphicon-plus"></i>
-                <span>Select files...</span>
+                <span>Выбрать файл...</span>
                 <input id="fileupload" type="file" name="file" accept="image/jpeg,image/png,image/gif">
             </span>
             <br>
@@ -52,7 +52,7 @@
 </form>
 
 <div class="modal fade" id="preview" tabindex="-1" role="dialog" aria-labelledby="previewLabel">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -66,6 +66,7 @@
                         <th>Email</th>
                         <th>Заголовок</th>
                         <th>Текст</th>
+                        <td>Картинка</td>
                         <th style="white-space: nowrap">Статус</th>
                     </tr>
                     </thead>
@@ -75,6 +76,7 @@
                             <td><span class="field-email"></span></td>
                             <td><span class="field-title"></span></td>
                             <td><span class="field-text"></span></td>
+                            <td><img class="field-image" alt="Картинка" title="Картинка" style="max-width: 100%"/></td>
                             <td><span class="btn btn-default">не решено</span></td>
                         </tr>
                     </tbody>

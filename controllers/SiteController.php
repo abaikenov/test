@@ -1,4 +1,5 @@
 <?php
+
 namespace controllers;
 
 use core\Controller;
@@ -16,7 +17,7 @@ class SiteController extends Controller
     {
         $limit = 3;
         $page = intval($this->request->get('page', 1));
-        $sort = $this->request->get('sort', 'createdAt DESC');
+        $sort = $this->request->get('sort', 'id DESC');
 
         $tasks = Model::find(Task::class, [
             'offset' => ($page - 1) * $limit,
@@ -64,26 +65,6 @@ class SiteController extends Controller
     public function actionUpload()
     {
         try {
-            if (!isset($_FILES['file']['error']) || is_array($_FILES['file']['error'])) {
-                throw new RuntimeException('Invalid parameters.');
-            }
-
-            switch ($_FILES['file']['error'][0]) {
-                case UPLOAD_ERR_OK:
-                    break;
-                case UPLOAD_ERR_NO_FILE:
-                    throw new RuntimeException('No file sent.');
-                case UPLOAD_ERR_INI_SIZE:
-                case UPLOAD_ERR_FORM_SIZE:
-                    throw new RuntimeException('Exceeded filesize limit.');
-                default:
-                    throw new RuntimeException('Unknown errors.');
-            }
-
-            if ($_FILES['file']['size'] > 1000000) {
-                throw new RuntimeException('Exceeded filesize limit.');
-            }
-
             $finfo = new finfo(FILEINFO_MIME_TYPE);
             if (false === $ext = array_search(
                     $finfo->file($_FILES['file']['tmp_name']),
@@ -95,7 +76,7 @@ class SiteController extends Controller
                     true
                 )
             ) {
-                throw new RuntimeException('Invalid file format.');
+                throw new RuntimeException('Invalid image format.');
             }
 
             $fileName = sha1_file($_FILES['file']['tmp_name']);
@@ -109,10 +90,37 @@ class SiteController extends Controller
             ) {
                 throw new RuntimeException('Failed to move uploaded file.');
             }
-            $filePath = '/uploads/' . $fileName. '.' . $ext;
-//            echo $this->resizeImage(__DIR__ . '..' . DIRECTORY_SEPARATOR . 'web' . DIRECTORY_SEPARATOR . 'uploadss' . DIRECTORY_SEPARATOR . $fileName. '.' . $ext, $filePath, 1, 320, 240);
-            echo $this->resizeImage($filePath.'sd', $filePath, 1, 320, 240);
+            $filePath = '/uploads/' . $fileName . '.' . $ext;
 
+            $absFilePath = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . $fileName. '.' . $ext;
+
+            switch($ext)
+            {
+                case "png":
+                    $img = imagecreatefrompng($absFilePath);
+                    break;
+                case "gif":
+                    $img = imagecreatefromgif($absFilePath);
+                    break;
+                default:
+                    $img = imagecreatefromjpeg($absFilePath);
+                    break;
+            }
+
+            $w = 320;
+            $h = 240;
+            $image['sizeX'] = imagesx($img);
+            $image['sizeY'] = imagesy($img);
+
+            if(($image['sizeX'] > $w) || ($image['sizeY'] > $h)) {
+                $thumb = imagecreatetruecolor($w, $h);
+                if ($h / $w > $image['sizeY'] / $image['sizeX']) {
+                    imagecopyresampled($thumb, $img, 0, 0, ($image['sizeX'] - $w / $h * $image['sizeY']) / 2, 0, $w, $h, $w / $h * $image['sizeY'], $image['sizeY']);
+                } else {
+                    imagecopyresampled($thumb, $img, 0, 0, 0, ($image['sizeY'] - $h / $w * $image['sizeX']) / 2, $w, $h, $image['sizeX'], $h / $w * $image['sizeX']);
+                }
+                imagejpeg($thumb, $absFilePath, 90);
+            }
             echo json_encode(['src' => $filePath]);
 
         } catch (RuntimeException $e) {
@@ -120,80 +128,4 @@ class SiteController extends Controller
         }
     }
 
-    private function resizeImage($input, $output, $mode, $w, $h = 0)
-    {
-        switch($this->getMimeType($input))
-        {
-            case "image/png":
-                $img = imagecreatefrompng($input);
-                break;
-            case "image/gif":
-                $img = imagecreatefromgif($input);
-                break;
-            case "image/jpeg":
-            default:
-                $img = imagecreatefromjpeg($input);
-                break;
-        }
-
-        $image['sizeX'] = imagesx($img);
-        $image['sizeY'] = imagesy($img);
-        switch ($mode){
-            case 1: //Quadratic Image
-                $thumb = imagecreatetruecolor($w,$w);
-                if($image['sizeX'] > $image['sizeY'])
-                {
-                    imagecopyresampled($thumb, $img, 0,0, ($w / $image['sizeY'] * $image['sizeX'] / 2 - $w / 2),0, $w,$w, $image['sizeY'],$image['sizeY']);
-                }
-                else
-                {
-                    imagecopyresampled($thumb, $img, 0,0, 0,($w / $image['sizeX'] * $image['sizeY'] / 2 - $w / 2), $w,$w, $image['sizeX'],$image['sizeX']);
-                }
-                break;
-
-            case 2: //Biggest side given
-                if($image['sizeX'] > $image['sizeY'])
-                {
-                    $thumb = imagecreatetruecolor($w, $w / $image['sizeX'] * $image['sizeY']);
-                    imagecopyresampled($thumb, $img, 0,0, 0,0, imagesx($thumb),imagesy($thumb), $image['sizeX'],$image['sizeY']);
-                }
-                else
-                {
-                    $thumb = imagecreatetruecolor($w / $image['sizeY'] * $image['sizeX'],$w);
-                    imagecopyresampled($thumb, $img, 0,0, 0,0, imagesx($thumb),imagesy($thumb), $image['sizeX'],$image['sizeY']);
-                }
-                break;
-            case 3; //Both sides given (cropping)
-                $thumb = imagecreatetruecolor($w,$h);
-                if($h / $w > $image['sizeY'] / $image['sizeX'])
-                {
-                    imagecopyresampled($thumb, $img, 0,0, ($image['sizeX']-$w / $h * $image['sizeY'])/2,0, $w,$h, $w / $h * $image['sizeY'],$image['sizeY']);
-                }
-                else
-                {
-                    imagecopyresampled($thumb, $img, 0,0, 0,($image['sizeY']-$h / $w * $image['sizeX'])/2, $w,$h, $image['sizeX'],$h / $w * $image['sizeX']);
-                }
-                break;
-
-            case 0:
-                $thumb = imagecreatetruecolor($w,$w / $image['sizeX']*$image['sizeY']);
-                imagecopyresampled($thumb, $img, 0,0, 0,0, $w,$w / $image['sizeX']*$image['sizeY'], $image['sizeX'],$image['sizeY']);
-                break;
-        }
-
-        if(!file_exists($output)) imagejpeg($thumb, $output, 90);
-    }
-
-
-    private function getMimeType($file)
-    {
-        $forbiddenChars = array('?', '*', ':', '|', ';', '<', '>');
-        if(strlen(str_replace($forbiddenChars, '', $file)) < strlen($file))
-            throw new Exception("Forbidden characters!");
-        $file = escapeshellarg($file);
-        ob_start();
-        $type = system("file --mime-type -b ".$file);
-        ob_clean();
-        return $type;
-    }
 }

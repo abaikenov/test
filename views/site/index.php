@@ -40,7 +40,7 @@
             <td><?= $task->getEmail()?></td>
             <td><?= $task->getTitle()?></td>
             <td><?= $task->getText()?></td>
-            <td><img src="<?= $task->getImage()?>" style="width: 320px"></td>
+            <td><img src="<?= $task->getImage()?>" alt="<?= $task->getTitle()?>" title="<?= $task->getTitle()?>" /></td>
             <td>
                 <?php if($task->getStatus()):?>
                     <span class="btn btn-success">решено</span></td>
